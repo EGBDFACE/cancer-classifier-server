@@ -1,6 +1,7 @@
-const Koa = require('koa');
 const bodyParser = require('koa-bodyparser');
 const cors = require('koa2-cors');
+const Koa = require('koa');
+const koajwt = require('koa-jwt');
 const route = require('./route');
 
 const app = new Koa();
@@ -13,6 +14,30 @@ app.use(bodyParser({
 	jsonLimit: '50mb',
 	formLimit: '50mb'
 }));
+
+// token验证失败会抛出401错误,需要错误处理.
+app.use((ctx,next) => {
+  return next().catch( (err) => {
+
+    if(err.status === 401){
+       ctx.status = 401;
+       ctx.body = {
+          code: '000002',
+          data: null,
+          msg: 'Protected resource, use Authorization header to get access\n'
+       };
+    }else{
+      throw err;
+    }
+  })
+});
+
+// token
+app.use(koajwt({
+  secret: 'cancer-classifier'
+}).unless({
+  path: [/\/api\/signIn/, /\/api\/getSalt/]
+}))
 
 // use route 
 app.use(route());

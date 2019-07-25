@@ -1,7 +1,7 @@
 const child_process = require('child_process')
 const path = require('path')
 const fs = require('fs')
-const fileModel = require('../models/fileModel');
+const fileModel = require('../utils/fileModel');
 
 async function getUploadFile(data) {
   await fileModel.writeFile(data)

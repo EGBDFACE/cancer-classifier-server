@@ -42,9 +42,9 @@ app.use(koajwt({
 // use route 
 app.use(route());
 
-// app.listen(9090,'222.20.79.250',()=>{
-//   console.log('port is running on http://222.20.79.250:9090');
-//   });
-app.listen(9090,'172.31.46.224', () => {
-  console.log('port is running on http://172.31.46.224:9090');
-})
+ app.listen(9090,'222.20.79.250',()=>{
+   console.log('port is running on http://222.20.79.250:9090');
+   });
+//app.listen(9090,'172.31.46.224', () => {
+//  console.log('port is running on http://172.31.46.224:9090');
+//})

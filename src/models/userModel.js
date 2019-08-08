@@ -5,13 +5,21 @@ const MongoClient = require('mongodb').MongoClient;
 function getUserInfo (username) {
     return new Promise ( function (resolve, reject) {
         MongoClient.connect (url, { useNewUrlParser: true }, function (err, db) {
-            if(err) throw err;
+            // if(err) throw err;
+            if (err) {
+                console.log(`[ERROR]: ${err}`);
+                reject();
+            }
 
             const dbase = db.db('cancer-classifier');
             const findObj = { 'username': username};
 
             dbase.collection('user').find(findObj).toArray( function (err,result) {
-                if( err ) throw err;
+                // if( err ) throw err;
+                if (err) {
+                    console.log(`[ERROR]: ${err}`);
+                    reject();
+                }
 
                 db.close();
                 resolve(result);
@@ -23,13 +31,20 @@ function getUserInfo (username) {
 function updateUserInfo (whereStr, updateObj) {
     return new Promise ( function (resolve, reject) {
         MongoClient.connect (url, { useNewUrlParser: true}, function (err, db) {
-            if (err) throw err;
+            // if (err) throw err;
+            if (err) {
+                console.log(`[ERROR]: ${err}`);
+                reject();
+            }
     
             const dbase = db.db('cancer-classifier');
             const updateStr = {$set: updateObj};
     
             dbase.collection('user').updateOne(whereStr, updateStr, function (err, res) {
-                if(err) throw err;
+                // if(err) throw err;
+                if (err) {
+                    console.log(`[ERROR]: ${err}`);
+                }
                 db.close();
                 resolve('success');
             })
@@ -39,10 +54,16 @@ function updateUserInfo (whereStr, updateObj) {
 
 function addUser (info) {
     MongoClient.connect ( url, { useNewUrlParser: true}, function(err, db) {
-        if(err) throw err;
+        // if(err) throw err;
+        if (err) {
+            console.log(`[ERROR]: ${err}`);
+        }
         const dbase = db.db('cancer-classifier');
         dbase.collection('user').insertOne (info, function (err, res){
-            if(err) throw err;
+            // if(err) throw err;
+            if (err) {
+                console.log(`[ERROR]: ${err}`);
+            }
             db.close();
         })
     })

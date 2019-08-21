@@ -73,14 +73,15 @@ function getResult(data) {
             if (err) {
 				console.log(`[ERROR]: ${err}`);
 				reject();
+			}else {
+				const dArr = data.trim().split('\n');
+				let result = {};
+				for (let i=0; i<dArr.length; i++) {
+					let colArr = dArr[i].split(/\s+/);
+					result[colArr[0]] = colArr[1];
+				}
+				resolve(result);
 			}
-			const dArr = data.trim().split('\n');
-			let result = {};
-			for (let i=0; i<dArr.length; i++) {
-				let colArr = dArr[i].split('\t');
-				result[colArr[0]] = colArr[1];
-			}
-			resolve(result);
 		})
 	})	
 }

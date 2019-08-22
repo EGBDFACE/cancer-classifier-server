@@ -8,11 +8,16 @@ function resolveFile (info) {
     const mafPattern = /hugo_symbol(.*)radialsvm_rankscore/i;
     if (vcfPattern.exec(data) != null) {
         isVCF = true;
+        return {
+            code: '000000',
+            data: null,
+            msg: 'vcf format not supported'
+        };
     } else if (mafPattern.exec(data) != null) {
         isMAF = true;
     } else {
         return {
-            code: 000000,
+            code: '000000',
             data: null,
             msg: 'unsupported file format'
         };
@@ -45,7 +50,7 @@ function resolveFile (info) {
                 console.error(`[ERROR]: file write wrong, the msg is ${err}`);
             }
         })
-    }
+    } 
 }
 
 module.exports = {

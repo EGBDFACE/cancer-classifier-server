@@ -16,29 +16,29 @@ app.use(bodyParser({
 }));
 
 // token验证失败会抛出401错误,需要错误处理.
-// app.use((ctx,next) => {
-//   return next().catch( (err) => {
+app.use((ctx,next) => {
+  return next().catch( (err) => {
 
-//     if(err.status === 401){
-//        ctx.status = 401;
-//        ctx.body = {
-//           code: '000002',
-//           data: null,
-//           msg: 'Protected resource, use Authorization header to get access\n'
-//        };
-//     }else{
-//       throw err;
-//     }
-//   })
-// });
+    if(err.status === 401){
+       ctx.status = 401;
+       ctx.body = {
+          code: '000002',
+          data: null,
+          msg: 'Protected resource, use Authorization header to get access\n'
+       };
+    }else{
+      throw err;
+    }
+  })
+});
 
-// // token
-// app.use(koajwt({
-//   secret: 'cancer-classifier'
-// }).unless({
-//   // path: [/\/api\/signIn/, /\/api\/getSalt/]
-//   path: [/\/api\/uploadFile/,/\/api\/getResult/]
-// }))
+// token
+app.use(koajwt({
+  secret: 'cancer-classifier'
+}).unless({
+  path: [/\/api\/signIn/, /\/api\/getSalt/]
+  // path: [/\/api\/uploadFile/,/\/api\/getResult/]
+}))
 
 // use route 
 app.use(route());

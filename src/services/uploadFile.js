@@ -13,7 +13,7 @@ async function getUploadFile(data) {
 		  fileMd5: data.fileMD5,
 		  score: ''
 	  };
-	  const writeRes = fileUtils.resolveFile(data);
+	  const writeRes = await fileUtils.resolveFile(data);
 	  if (writeRes) {
 		  return writeRes;
 	  } else {

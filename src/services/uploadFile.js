@@ -35,8 +35,13 @@ async function getUploadFile(data) {
 
 async function getModelRes(data) {
   const result = await fileModel.getFileItem(data.fileMD5);
-
-  if (result[0].score) {
+  if (result.length ==0 ) {
+	return {
+		code: '000003',
+		data: null,
+		msg: 'the dbase does not have such a file , maybe the file is still in resolving, please wait a second'
+	};
+  } if (result[0].score) {
 	  return {
 		  code: '000001',
 		  data: result[0].score,

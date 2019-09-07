@@ -1,13 +1,13 @@
 const fs = require ('fs');
-const path = require ('path');
-const resolveVCF = require('./handleVCF');
 const getHugoSVM = require('./fieldExtraction').getHugoSVM;
+const mafNoScoreResolve = require('./handleMafNoSVM').fileResolve;
+const resolveVCF = require('./handleVCF').fileResolve;
 
 async function resolveFile (info) {
     const data = info.data;
     let isVCF = false, isMAF = false;
     const vcfPattern = /fileformat\=vcf/i;
-    const mafPattern = /hugo_symbol(.*)radialsvm_rankscore/i;
+    const mafPattern = /hugo_symbol/i;
     if (vcfPattern.exec(data) != null) {
         isVCF = true;
         // return {
@@ -25,11 +25,14 @@ async function resolveFile (info) {
         };
     }
     if (isMAF) {
-        getHugoSVM(info);
+        const hasSVMPattern = /hogo_symbol(.*)radialsvm_rankscore/i;
+        if (hasSVMPattern.exec(data) != null) {
+            getHugoSVM(info);
+        } else {
+            await mafNoScoreResolve(info);
+        }
     } else if (isVCF) {
-        resolveVCF.convertToOncotator(info);
-        await resolveVCF.runOncotator(info);
-        resolveVCF.getHugoSVMFromOncotator(info);
+        await resolveVCF(info);
     }
 }
 

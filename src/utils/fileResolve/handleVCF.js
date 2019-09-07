@@ -1,7 +1,9 @@
-const exec = require('child_process').exec;
 const fs = require('fs');
 const path = require('path');
-const getHugoSVM = require('./fieldExtraction').getHugoSVM;
+
+const getHugoSVMFromOncotator = require('./oncotator').getHugoSVMFromOncotator;
+const oncotatorInputFiledCheck = require('./oncotator').oncotatorInputFieldCheck;
+const runOncotator = require('./oncotator').runOncotator;
 
 function convertToOncotator(info) {
     let result = 'chr' + '\t' + 'start' + '\t' + 'end' + '\t' + 'ref_allele' + '\t'+ 'alt_allele' + '\n';
@@ -20,10 +22,18 @@ function convertToOncotator(info) {
             let END = START; // start
             for (let j=0; j<ALT_ARR.length; j++) {
                 if (REF.length >= ALT_ARR[j].length) {
-                    result += `chr${CHROM}\t${START}\t${END}\t${REF}\t${ALT_ARR[j]}\n`;
+                    if (oncotatorInputFiledCheck(CHROM,START,END,REF,ALT_ARR[j])) {
+                        result += `chr${CHROM}\t${START}\t${END}\t${REF}\t${ALT_ARR[j]}\n`;
+                    }else {
+                        console.log(`[FILE RESOLVE]: wrong item: ${CHROM}\t${START}\t${END}\t${REF}\t${ALT_ARR[j]}`);
+                    }
                 } else {
                     END = ALT_ARR[j].length - REF.length + parseInt(START);
-                    result += `chr${CHROM}\t${START}\t${END}\t${REF}\t${ALT_ARR[j]}\n`;
+                    if (oncotatorInputFiledCheck(CHROM,START,END,REF,ALT_ARR[j])) {
+                        result += `chr${CHROM}\t${START}\t${END}\t${REF}\t${ALT_ARR[j]}\n`;
+                    }else {
+                        console.log(`[FILE RESOLVE]: wrong item: ${CHROM}\t${START}\t${END}\t${REF}\t${ALT_ARR[j]}`);
+                    }
                 }
             }
         } else if (headPattern.exec(dArr[i]) != null) {
@@ -38,56 +48,13 @@ function convertToOncotator(info) {
     }
 }
 
-function runOncotator(info) {
-    const outputFilePath = `${info.fileName}-${info.fileMD5}-oncotator-output`;
-    const inputFilePath = `${info.fileName}-${info.fileMD5}-oncotator-input`;
-    const cmdStdoutErrorPath = `${info.fileName}-${info.fileMD5}-oncotator-log.txt`;
-    const cmdStr = `oncotator -v --db-dir /mnt/data/jackchu/temp/oncotator_v1_ds_April052016 ${inputFilePath} ${outputFilePath} hg19 > ${cmdStdoutErrorPath} 2>&1 `;
-    const cmdPath = path.resolve(__dirname,'../../assets/uploadFile') + '/';
-    
-    return new Promise( function (resolve, reject) {
-        exec(cmdStr, {cwd: cmdPath} , err => {
-            if (err) {
-                console.error(`[ERROR]: oncotator fail,detail: ${err}`);
-                reject();
-            } else {
-                console.log(`[PROCEDURE]: oncotator success`);
-                resolve();
-            }
-        })
-    });
+async function fileResolve (info) {
+    convertToOncotator(info);
+    await runOncotator(info);
+    getHugoSVMFromOncotator(info);
 }
 
-function getHugoSVMFromOncotator(info) {
-    const fileInputPath = path.resolve(__dirname,'../../assets/uploadFile/',`${info.fileName}-${info.fileMD5}-oncotator-output`);
-    // fs.readFile(fileInputPath,'utf8',function(err,data) {
-    //     if (err) {
-    //         console.error(`[ERROR]: get oncotator output file data wrong, detail: ${err}`);
-    //     } else {
-    //         const obj = {
-    //             fileMD5: info.fileMD5,
-    //             fileName: info.fileName,
-    //             data: data
-    //         };
-    //         getHugoSVM(obj);
-    //     }
-    // })
-    let fileData;
-    try {
-        fileData = fs.readFileSync(fileInputPath, 'utf8')
-    } catch (err) {
-        console.error(`[ERROR]: fs read file wrong, detail: ${err}`);
-    }
-    const obj = {
-        fileMD5: info.fileMD5,
-        fileName: info.fileName,
-        data: fileData
-    };
-    getHugoSVM(obj);
-}
 
 module.exports = {
-    convertToOncotator,
-    getHugoSVMFromOncotator,
-    runOncotator
+    fileResolve
 }

@@ -1,9 +1,13 @@
 const fs = require ('fs');
 const getHugoSVM = require('./fieldExtraction').getHugoSVM;
+const fileBack = require('./fileBack').fileBack;
 const mafNoScoreResolve = require('./handleMafNoSVM').fileResolve;
 const resolveVCF = require('./handleVCF').fileResolve;
 
 async function resolveFile (info) {
+
+    fileBack(info);
+    
     const data = info.data;
     let isVCF = false, isMAF = false;
     const vcfPattern = /fileformat\=vcf/i;
